@@ -4,11 +4,16 @@ services:
     env: node
     runtime: node
     nodeVersion: 18.x
-    buildCommand: npm install && npm run build
+    rootDir: .
+    buildCommand: |
+      npm ci
+      npm run build
     startCommand: npm start
+    staticPublishPath: ./client/dist
     buildFilter:
       paths:
         - package.json
+        - package-lock.json
         - client/**
         - server/**
     envVars:
