@@ -2,7 +2,6 @@ services:
   - type: web
     name: nationforge
     env: node
-    rootDir: .
     buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:
@@ -13,4 +12,4 @@ services:
       - key: JWT_SECRET
         value: d8e027c3a47a2f18845b8b70d3c2b1e5f924a3d6b9c0e4f7a1d3b5c8e9f2a4d
       - key: PORT
-        value: 10000 
+        value: "10000"
