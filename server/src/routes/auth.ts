@@ -450,20 +450,25 @@ router.get('/debug/reset-password', (_req: Request, res: Response): void => {
 // Request password reset
 router.post('/forgot-password', async (req: Request, res: Response): Promise<void> => {
   try {
+    console.log('Received password reset request');
     const { email } = req.body;
 
     if (!email) {
+      console.log('No email provided in request');
       res.status(400).json({ message: 'Email is required' });
       return;
     }
 
+    console.log('Looking up user with email:', email);
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
+      console.log('No user found with email:', email);
       // Don't reveal that the user doesn't exist
       res.json({ message: 'If an account exists with this email, a password reset link will be sent.' });
       return;
     }
 
+    console.log('User found, generating reset token');
     // Generate reset token
     const resetToken = crypto.randomBytes(32).toString('hex');
     const hashedToken = crypto
@@ -474,22 +479,46 @@ router.post('/forgot-password', async (req: Request, res: Response): Promise<voi
     // Save token to user
     user.resetPasswordToken = hashedToken;
     user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hour
+    
+    console.log('Saving reset token to user');
     await user.save();
 
     try {
+      console.log('Attempting to send reset email');
       // Send reset email
       await sendPasswordResetEmail(user.email, resetToken, user.username);
+      console.log('Reset email sent successfully');
       res.json({ message: 'Password reset email sent' });
-    } catch (emailError) {
-      console.error('Error sending reset email:', emailError);
+    } catch (emailError: any) {
+      console.error('Detailed email error:', {
+        error: emailError.message,
+        stack: emailError.stack,
+        code: emailError.code,
+        command: emailError.command,
+        responseCode: emailError.responseCode,
+        response: emailError.response
+      });
+      
+      // Clean up the token since email failed
+      console.log('Cleaning up reset token due to email failure');
       user.resetPasswordToken = undefined;
       user.resetPasswordExpires = undefined;
       await user.save();
-      res.status(500).json({ message: 'Error sending password reset email' });
+      
+      res.status(500).json({ 
+        message: 'Error sending password reset email',
+        error: emailError.message 
+      });
     }
-  } catch (error) {
-    console.error('Error in forgot password:', error);
-    res.status(500).json({ message: 'Server error' });
+  } catch (error: any) {
+    console.error('Unexpected error in forgot password:', {
+      error: error.message,
+      stack: error.stack
+    });
+    res.status(500).json({ 
+      message: 'Server error',
+      error: error.message
+    });
   }
 });
 
