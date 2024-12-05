@@ -21,6 +21,10 @@ async function initializeTransporter() {
         user: testAccount.user,
         pass: testAccount.pass,
       },
+      tls: {
+        // Do not fail on invalid certificates
+        rejectUnauthorized: false
+      }
     });
 
     console.log('Transporter initialized successfully');

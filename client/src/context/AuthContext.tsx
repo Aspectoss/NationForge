@@ -14,7 +14,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const API_BASE_URL = import.meta.env.PROD 
+const API_BASE_URL = import.meta.env.MODE === 'production'
   ? 'https://nationforge.onrender.com/api'
   : 'http://localhost:5003/api';
 
