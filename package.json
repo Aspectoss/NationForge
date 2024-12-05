@@ -1,0 +1,23 @@
+{
+  "name": "nationforge",
+  "version": "1.0.0",
+  "description": "A nation building strategy game",
+  "private": true,
+  "scripts": {
+    "start": "cd server && npm start",
+    "build": "npm run build-client && npm run build-server",
+    "build-client": "cd client && npm install && npm run build",
+    "build-server": "cd server && npm install && npm run build",
+    "dev": "concurrently \"cd client && npm run dev\" \"cd server && npm run dev\"",
+    "postinstall": "cd client && npm install && cd ../server && npm install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
