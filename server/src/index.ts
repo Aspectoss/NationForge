@@ -38,6 +38,11 @@ app.use('/api/users', userRoutes);
 app.use('/api/countries', countryRoutes);
 app.use('/api/buildings', buildingRoutes);
 
+// Debug route to check if server is running
+app.get('/api/health', (_req: Request, res: Response) => {
+  res.json({ status: 'ok', message: 'Server is running' });
+});
+
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   // Serve static files from the React app
