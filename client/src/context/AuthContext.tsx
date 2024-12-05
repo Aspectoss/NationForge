@@ -14,7 +14,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const API_BASE_URL = 'http://localhost:5003/api';
+const API_BASE_URL = import.meta.env.PROD 
+  ? 'https://nationforge.onrender.com/api'
+  : 'http://localhost:5003/api';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<any>(null);
@@ -97,17 +99,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await axios.post(`${API_BASE_URL}/auth/forgot-password`, { email });
     } catch (error: any) {
+      console.error('Forgot password error:', {
+        status: error.response?.status,
+        message: error.response?.data?.message,
+        error: error.message
+      });
       throw new Error(error.response?.data?.message || 'Failed to send reset email');
     }
   };
 
   const resetPassword = async (token: string, newPassword: string) => {
     try {
-      await axios.post(`${API_BASE_URL}/auth/reset-password`, {
-        token,
-        newPassword,
+      await axios.post(`${API_BASE_URL}/auth/reset-password/${token}`, {
+        password: newPassword,
       });
     } catch (error: any) {
+      console.error('Reset password error:', {
+        status: error.response?.status,
+        message: error.response?.data?.message,
+        error: error.message
+      });
       throw new Error(error.response?.data?.message || 'Failed to reset password');
     }
   };
