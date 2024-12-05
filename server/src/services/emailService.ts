@@ -6,26 +6,40 @@ let transporter: nodemailer.Transporter;
 async function initializeTransporter() {
   try {
     console.log('Initializing email transporter...');
-    // Always use Ethereal (fake SMTP service) for testing
-    const testAccount = await nodemailer.createTestAccount();
-    console.log('Created test account:', {
-      user: testAccount.user,
-      pass: '***' // Don't log the actual password
-    });
     
-    transporter = nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      secure: false,
-      auth: {
+    if (process.env.NODE_ENV === 'production') {
+      // Use SendGrid in production
+      transporter = nodemailer.createTransport({
+        service: 'SendGrid',
+        auth: {
+          user: process.env.SENDGRID_USER,
+          pass: process.env.SENDGRID_API_KEY,
+        },
+      });
+      console.log('SendGrid transporter initialized');
+    } else {
+      // Use Ethereal for development
+      const testAccount = await nodemailer.createTestAccount();
+      console.log('Created test account:', {
         user: testAccount.user,
-        pass: testAccount.pass,
-      },
-      tls: {
-        // Do not fail on invalid certificates
-        rejectUnauthorized: false
-      }
-    });
+        pass: '***' // Don't log the actual password
+      });
+      
+      transporter = nodemailer.createTransport({
+        host: 'smtp.ethereal.email',
+        port: 587,
+        secure: false,
+        auth: {
+          user: testAccount.user,
+          pass: testAccount.pass,
+        },
+        tls: {
+          // Do not fail on invalid certificates
+          rejectUnauthorized: false
+        }
+      });
+      console.log('Ethereal transporter initialized for development');
+    }
 
     console.log('Transporter initialized successfully');
   } catch (error) {
@@ -56,7 +70,9 @@ export async function sendPasswordResetEmail(
     const resetUrl = `${baseUrl}/reset-password/${resetToken}`;
 
     const mailOptions = {
-      from: '"NationForge" <noreply@nationforge.com>',
+      from: process.env.NODE_ENV === 'production'
+        ? 'NationForge <noreply@nationforge.com>'
+        : 'NationForge Test <test@nationforge.com>',
       to,
       subject: 'Password Reset Request',
       html: `
@@ -89,9 +105,11 @@ export async function sendPasswordResetEmail(
       response: info.response
     });
     
-    // Always log the test email URL since we're using Ethereal
-    const previewUrl = nodemailer.getTestMessageUrl(info);
-    console.log('Preview URL:', previewUrl);
+    // Log preview URL only in development
+    if (process.env.NODE_ENV !== 'production') {
+      const previewUrl = nodemailer.getTestMessageUrl(info);
+      console.log('Preview URL (development only):', previewUrl);
+    }
   } catch (error: any) {
     console.error('Detailed error sending password reset email:', {
       error: error.message,
