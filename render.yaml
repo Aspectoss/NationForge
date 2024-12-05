@@ -2,8 +2,15 @@ services:
   - type: web
     name: nationforge
     env: node
+    runtime: node
+    nodeVersion: 18.x
     buildCommand: npm install && npm run build
     startCommand: npm start
+    buildFilter:
+      paths:
+        - package.json
+        - client/**
+        - server/**
     envVars:
       - key: NODE_ENV
         value: production
