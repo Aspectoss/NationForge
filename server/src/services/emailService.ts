@@ -4,29 +4,18 @@ import nodemailer from 'nodemailer';
 let transporter: nodemailer.Transporter;
 
 async function initializeTransporter() {
-  // For development, use Ethereal (fake SMTP service)
-  if (process.env.NODE_ENV !== 'production') {
-    const testAccount = await nodemailer.createTestAccount();
-    
-    transporter = nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      secure: false,
-      auth: {
-        user: testAccount.user,
-        pass: testAccount.pass,
-      },
-    });
-  } else {
-    // For production, use real email service (e.g., Gmail, SendGrid)
-    transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
-  }
+  // Always use Ethereal (fake SMTP service) for testing
+  const testAccount = await nodemailer.createTestAccount();
+  
+  transporter = nodemailer.createTransport({
+    host: 'smtp.ethereal.email',
+    port: 587,
+    secure: false,
+    auth: {
+      user: testAccount.user,
+      pass: testAccount.pass,
+    },
+  });
 }
 
 export async function sendPasswordResetEmail(
@@ -38,7 +27,12 @@ export async function sendPasswordResetEmail(
     await initializeTransporter();
   }
 
-  const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
+  // Use the deployed URL in production, localhost in development
+  const baseUrl = process.env.NODE_ENV === 'production' 
+    ? 'https://nationforge.onrender.com'
+    : 'http://localhost:5173';
+
+  const resetUrl = `${baseUrl}/reset-password/${resetToken}`;
 
   const mailOptions = {
     from: '"NationForge" <noreply@nationforge.com>',
@@ -70,10 +64,8 @@ export async function sendPasswordResetEmail(
   try {
     const info = await transporter.sendMail(mailOptions);
     
-    // For development, log the test email URL
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-    }
+    // Always log the test email URL since we're using Ethereal
+    console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
   } catch (error) {
     console.error('Error sending password reset email:', error);
     throw new Error('Failed to send password reset email');
