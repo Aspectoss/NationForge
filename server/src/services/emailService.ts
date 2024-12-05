@@ -8,15 +8,16 @@ async function initializeTransporter() {
     console.log('Initializing email transporter...');
     
     if (process.env.NODE_ENV === 'production') {
-      // Use SendGrid in production
+      // Use Gmail in production
       transporter = nodemailer.createTransport({
-        service: 'SendGrid',
+        service: 'gmail',
         auth: {
-          user: process.env.SENDGRID_USER,
-          pass: process.env.SENDGRID_API_KEY,
+          user: process.env.GMAIL_USER,
+          // Use an App Password, not your regular Gmail password
+          pass: process.env.GMAIL_APP_PASSWORD,
         },
       });
-      console.log('SendGrid transporter initialized');
+      console.log('Gmail transporter initialized');
     } else {
       // Use Ethereal for development
       const testAccount = await nodemailer.createTestAccount();
@@ -71,7 +72,7 @@ export async function sendPasswordResetEmail(
 
     const mailOptions = {
       from: process.env.NODE_ENV === 'production'
-        ? 'NationForge <noreply@nationforge.com>'
+        ? `NationForge <${process.env.GMAIL_USER}>`
         : 'NationForge Test <test@nationforge.com>',
       to,
       subject: 'Password Reset Request',
