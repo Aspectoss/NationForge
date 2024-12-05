@@ -15,7 +15,7 @@
       "*": ["types/*"]
     },
     "typeRoots": ["./node_modules/@types", "./src/types"],
-    "types": ["node", "express", "mongoose", "jsonwebtoken", "bcryptjs", "cors", "nodemailer"]
+    "types": ["node", "express"]
   },
   "ts-node": {
     "files": true
