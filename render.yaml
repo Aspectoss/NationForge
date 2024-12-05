@@ -1,21 +1,11 @@
 services:
   - type: web
     name: nationforge
+    plan: free
     env: node
-    runtime: node
-    nodeVersion: 18.x
-    rootDir: .
-    buildCommand: |
-      npm ci
-      npm run build
+    region: ohio
+    buildCommand: npm install && npm run build
     startCommand: npm start
-    staticPublishPath: ./client/dist
-    buildFilter:
-      paths:
-        - package.json
-        - package-lock.json
-        - client/**
-        - server/**
     envVars:
       - key: NODE_ENV
         value: production
@@ -25,3 +15,5 @@ services:
         value: d8e027c3a47a2f18845b8b70d3c2b1e5f924a3d6b9c0e4f7a1d3b5c8e9f2a4d
       - key: PORT
         value: "10000"
+      - key: NODE_VERSION
+        value: 18.x
