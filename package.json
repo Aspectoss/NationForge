@@ -6,7 +6,7 @@
   "scripts": {
     "start": "cd server && npm start",
     "build": "npm run build-client && npm run build-server",
-    "build-client": "cd client && npm install && npm install -g vite && vite build",
+    "build-client": "cd client && npm install && npm install -g vite tailwindcss postcss autoprefixer && vite build",
     "build-server": "cd server && npm install && npm run build",
     "dev": "concurrently \"cd client && npm run dev\" \"cd server && npm run dev\"",
     "postinstall": "cd client && npm install && cd ../server && npm install"
