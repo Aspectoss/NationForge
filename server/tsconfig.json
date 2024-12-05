@@ -15,11 +15,11 @@
       "*": ["types/*"]
     },
     "typeRoots": ["./node_modules/@types", "./src/types"],
-    "types": ["node", "express"]
+    "types": ["node", "express", "mongoose", "jsonwebtoken", "bcryptjs", "cors", "nodemailer"]
   },
   "ts-node": {
     "files": true
   },
   "include": ["src/**/*", "src/types/*.d.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist"]
 } 
